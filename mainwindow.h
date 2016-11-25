@@ -41,15 +41,12 @@ private slots:
 
     void on_wrButton_clicked();
 
+    void slotKeyOver();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort serialPort;
     QTimer timerResend;          //查询设备ID
-    QTimer timer2;          //查询密钥
-    QTimer timerWritter;    //
-    QTimer timerFlush;      //
-    QTimer timerWriteKey;
-    QTimer timerOnLine;
 
     unsigned char receivedFrame[80];
     unsigned char writeFrame[80];
@@ -60,7 +57,6 @@ private:
     bool isNeedFlush;
 
     bool isOnLine;
-
 
     unsigned char sentcmd;      //已发送命令
     unsigned char sentcnt;      //已发送次数
@@ -75,9 +71,6 @@ private:
     void WriteKey();
     QString GetDevicetype(QString s);
     void OffLine();
-
-private slots:
-    void slotKeyOver();
 
 signals:
     void signalKeyOver();

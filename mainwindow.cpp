@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :    QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("设备ID读写工具V0.8");
+    this->setWindowTitle("设备ID读写工具V1.1.0");
     //this->ui->pushButton->setVisible(false);
 
     QSerialPortInfo::availablePorts();
@@ -89,7 +89,6 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
     else
     {
         serialPort.close();
-        this->timerFlush.stop();
         this->ui->comboBox->setCurrentIndex(0);
     }
 }
@@ -125,8 +124,6 @@ void MainWindow::on_wrButton_clicked()
         }
         this->writtingKey = this->ui->keylineEdit->text().toLocal8Bit();
         QueryId();
-        this->timerWritter.setSingleShot(true);
-        this->timerWritter.start(1500);
     }
     else
     {
