@@ -68,6 +68,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)
+
 {
     qDebug()<<this->ui->comboBox->itemText(index);
     if(serialPort.isOpen())
@@ -219,8 +220,85 @@ void MainWindow::slotDataRead()
                 break;
 
             case CmdRDInfoAck:
-                sentcmd = 0;
-                this->ui->label_5->setText("设备信息："+QByteArray((char *)receivedFrame+1,len-1));
+                {
+                    sentcmd = 0;
+
+                    int tpm_data;
+                    QString str = "";
+                    QString str_model_type = " ";
+                    QString str_protocol_version = "；协议版本:";
+                    QString str_soft_version = "；软件版本:";
+                    QString str_hard_version = "；硬件版本:";
+                    QString str_encrypted_type = "；";
+                    QString str_buffer_length = "；缓冲区长度:";
+
+                    if(receivedFrame[1] == 1)
+                    {
+                        str_model_type += "WIFI模块";
+                    }
+                    else if(receivedFrame[1] == 2)
+                    {
+                        str_model_type += "Zigbee模块";
+                    }
+                    else if(receivedFrame[1] == 3)
+                    {
+                        str_model_type += "Thread模块";
+                    }
+                    else
+                    {
+                        str_model_type += "未知类型";
+                    }
+
+                    str = QString::number(receivedFrame[2],16).toUpper();
+                    if(str.toInt(0,16) == 0)
+                    {
+                        str = "00";
+                    }
+                    else if((str.toInt()<16)&&(str.toInt()>0))
+                    {
+                        str = str.insert(0, "0");
+                    }
+                    str_protocol_version += str;
+
+                    tpm_data = receivedFrame[6]<<24 | receivedFrame[5]<<16 | receivedFrame[4]<<8 | receivedFrame[3];
+                    str = QString::number(tpm_data, 16).toUpper();
+                    if((0<receivedFrame[6])&&(receivedFrame[6]<16))
+                    {
+                        str = str.insert(0, "0");
+                    }
+                    else if(0 == receivedFrame[6])
+                    {
+                        str = str.insert(0, "00");
+                    }
+                    str_soft_version += str;
+
+                    tpm_data = receivedFrame[10]<<24 | receivedFrame[9]<<16 | receivedFrame[8]<<8 | receivedFrame[7];
+                    str = QString::number(tpm_data, 16).toUpper();
+                    if((0<receivedFrame[10])&&(receivedFrame[10]<16))
+                    {
+                        str = str.insert(0, "0");
+                    }
+                    else if(0 == receivedFrame[10])
+                    {
+                        str = str.insert(0, "00");
+                    }
+                    str_hard_version += str;
+
+                    if(receivedFrame[11] == 0)
+                    {
+                        str_encrypted_type += "未加密";
+                    }
+                    else
+                    {
+                         str_encrypted_type += "未知加密类型";
+                    }
+
+                    tpm_data = receivedFrame[14]<<8 | receivedFrame[13];
+                    str = QString::number(tpm_data, 16).toUpper();
+                    str = str.insert(0,"0x");
+                    str_buffer_length += str;
+                    this->ui->label_5->setText("设备信息："+str_model_type+str_protocol_version+str_soft_version+str_hard_version+str_encrypted_type+str_buffer_length);
+                }
                 break;
 
             default:
